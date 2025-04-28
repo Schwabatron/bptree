@@ -87,7 +87,12 @@ public class UnitTests {
 		tree.insert("e", 6);
 		tree.insert("h", 7);
 		System.out.println(toString(tree.root(), 1, tree.degree(), m));
+		System.out.println("before delete c:\n"
+				+ toString(tree.root(), 1, tree.degree(), m));
 		tree.delete("c");
+		// you can also print right after delete:
+		System.out.println(" after delete c:\n"
+				+ toString(tree.root(), 1, tree.degree(), m));
 		assertEquals(
 				" @8(@1, f, @9, null, null)\n" + "  @1(@3, d, @5, null, null)\n"
 						+ "   @3(2, a, 5, b, @5)\n" + "   @5(4, d, 6, e, @10)\n"

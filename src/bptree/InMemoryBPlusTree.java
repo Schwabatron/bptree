@@ -198,6 +198,14 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 		// node2parent associates each node on the search path with the parent node of that node
 		if (l != null)
 			delete(l, k, node2parent);
+
+
+		if (root instanceof LeafNode) {
+			@SuppressWarnings("unchecked")
+			LeafNode<K, P> leaf = (LeafNode<K, P>) root;
+			// always clear the last slot (the successor link)
+			leaf.pointers[leaf.pointers.length - 1] = null;
+		}
 	}
 
 	/**
@@ -313,9 +321,24 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 * @param n
 	 *            a {@code NonLeafNode}
 	 */
-	protected void merge(NonLeafNode<K> np, K kp, NonLeafNode<K> n) {
-		np.insert(kp, np.keyCount, n.pointer(0), np.keyCount + 1); // insert separator key and 1st pointer from n
-		np.append(n, 0, n.keyCount - 1); // copy all keys and pointers except last pointer
+	@SuppressWarnings("unchecked")
+	protected void merge(NonLeafNode<K> left, K sepKey, NonLeafNode<K> right) {
+		// 1) remember old key count
+		int oldKC = left.keyCount;
+		// 2) put the separator key at the end of 'left'
+		left.keys[oldKC] = sepKey;
+		// 3) attach right's first child pointer just after that key
+		left.pointers[oldKC + 1] = right.pointer(0);
+		left.keyCount++;
+
+		// 4) now append every (key, pointer) from 'right'
+		for (int i = 0; i < right.keyCount; i++) {
+			// key goes into left.keys at [left.keyCount]
+			left.keys[left.keyCount] = right.key(i);
+			// pointer goes into left.pointers at [left.keyCount + 1]
+			left.pointers[left.keyCount + 1] = right.pointer(i + 1);
+			left.keyCount++;
+		}
 	}
 
 	/**
@@ -327,8 +350,11 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 *            a {@code LeafNode}
 	 */
 	protected void merge(LeafNode<K, P> np, LeafNode<K, P> n) {
-		np.append(n, 0,n.keyCount - 1); //appending all key pointer pairs to np
-		np.pointers[np.keyCount] = n.pointers[n.keyCount];
+		// append all key/pointer pairs
+		np.append(n, 0, n.keyCount - 1);
+		// fix up the leaf‐chain pointer (always in the last slot)
+		np.pointers[np.pointers.length - 1]
+				= n.pointers[n.pointers.length - 1];
 	}
 
 	/**
@@ -369,12 +395,23 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 */
 	protected void redistributeLeftNonLeaf(NonLeafNode<K> n, K kp, NonLeafNode<K> np,
 			NonLeafNode<K> parent) {
-		int m = 0;
-		K moveKey = np.key(0);         // Last key from np
-		var movePointer = np.pointer(m); // Rightmost pointer from np
-		n.insert(kp, n.keyCount, (Node<K>) movePointer, n.keyCount);
-		np.delete(m, m);           // Delete key-pointer pair from np
-		parent.changeKey(n, np, moveKey); // Update parent's separator key
+		// 1) grab np’s first key and first pointer
+		K movedUp = np.key(0);
+		@SuppressWarnings("unchecked")
+		Node<K> movedPtr = np.pointer(0);
+
+		// 2) insert the old separator + movedPtr at the end of n
+		n.insert(kp,
+				n.keyCount,       // key index = old last
+				movedPtr,
+				n.keyCount + 1);  // pointer index = old last+1
+
+		// 3) **remove** np’s first key **and** its first pointer
+		//    (delete(iK, iP) -> remove keys[iK], pointers[iP])
+		np.delete(0, 0);
+
+		// 4) update the parent’s separating key to the movedUp key
+		parent.changeKey(n, np, movedUp);
 	}
 
 	/**
@@ -410,11 +447,16 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 *            a {@code NonLeafNode} that is the parent of the specified {@code LeafNode}s.
 	 */
 	protected void redistributeLeftLeaf(LeafNode<K, P> n, K kp, LeafNode<K, P> np, NonLeafNode<K> parent) {
-		K k = np.key(0); //get that last key
-		P p = np.pointer(0); //get the pointer associated with the last key in np
-		n.insert(n.keyCount, k, p); //insert the key pointer pair into the beginning of n
-		np.delete(0); //remove the last key and pointer from np
-		parent.changeKey(n, np, k); //update the key between np and p in their parent node
+		// 1) pull off the first entry from the right sibling
+		K movedKey = np.key(0);
+		P movedPtr = np.pointer(0);
+		// 2) append it to the underflow leaf
+		n.insert(n.keyCount, movedKey, movedPtr);
+		// 3) remove it from the right sibling
+		np.delete(0);
+		// 4) update the parent separator to the *new* first key of the right sibling
+		K newSeparator = np.key(0);
+		parent.changeKey(n, np, newSeparator);
 	}
 
 }

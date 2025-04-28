@@ -369,12 +369,12 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 */
 	protected void redistributeLeftNonLeaf(NonLeafNode<K> n, K kp, NonLeafNode<K> np,
 			NonLeafNode<K> parent) {
-		int m = np.keyCount(); // Number of keys in np
-		K moveKey = np.key(m - 1);         // Last key from np
+		int m = 0;
+		K moveKey = np.key(0);         // Last key from np
 		var movePointer = np.pointer(m); // Rightmost pointer from np
-		n.insert(kp, 0, (Node<K>) movePointer, 0);
-		np.delete(m - 1, m);           // Delete key-pointer pair from np
-		parent.changeKey(np, n, moveKey); // Update parent's separator key
+		n.insert(kp, n.keyCount, (Node<K>) movePointer, n.keyCount);
+		np.delete(m, m);           // Delete key-pointer pair from np
+		parent.changeKey(n, np, moveKey); // Update parent's separator key
 	}
 
 	/**
@@ -410,12 +410,11 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 *            a {@code NonLeafNode} that is the parent of the specified {@code LeafNode}s.
 	 */
 	protected void redistributeLeftLeaf(LeafNode<K, P> n, K kp, LeafNode<K, P> np, NonLeafNode<K> parent) {
-		int m = np.keyCount() - 1; //last key index in np
-		K k = np.key(m); //get that last key
-		P p = np.pointer(m); //get the pointer associated with the last key in np
-		n.insert(0, k, p); //insert the key pointer pair into the beginning of n
-		np.delete(m); //remove the last key and pointer from np
-		parent.changeKey(np, n, n.keys[0]); //update the key between np and p in their parent node
+		K k = np.key(0); //get that last key
+		P p = np.pointer(0); //get the pointer associated with the last key in np
+		n.insert(n.keyCount, k, p); //insert the key pointer pair into the beginning of n
+		np.delete(0); //remove the last key and pointer from np
+		parent.changeKey(n, np, k); //update the key between np and p in their parent node
 	}
 
 }

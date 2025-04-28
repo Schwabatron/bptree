@@ -183,7 +183,7 @@ public class LeafNode<K extends Comparable<K>, P> extends Node<K> {
 	@Override
 	public boolean mergeable(Node<K> other) {
 		int combined_keyCount = keyCount + other.keyCount;
-		if(combined_keyCount <= (degree - 1)) //degree - 1 = max number of key entries
+		if(combined_keyCount <= keys.length) //degree - 1 = max number of key entries
 		{
 			return true; // if the combined keycount is less than or equal to the max number of keys then it is not able to merge
 		}

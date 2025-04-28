@@ -244,7 +244,15 @@ public class NonLeafNode<K extends Comparable<K>> extends Node<K> {
 	 */
 	@Override
 	public boolean mergeable(Node<K> other) {
-		return keyCount + other.keyCount() <= degree - 1;
+		int combined_keyCount = keyCount + other.keyCount + 2;
+		if(combined_keyCount <= pointers.length)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 }

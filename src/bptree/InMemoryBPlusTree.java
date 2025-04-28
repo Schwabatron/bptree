@@ -314,11 +314,11 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	/**
 	 * Merges the specified {@code NonLeafNode}s.
 	 * 
-	 * @param np
+	 * @param left
 	 *            a {@code NonLeafNode}
-	 * @param kp
+	 * @param sepKey
 	 *            a key
-	 * @param n
+	 * @param right
 	 *            a {@code NonLeafNode}
 	 */
 	@SuppressWarnings("unchecked")

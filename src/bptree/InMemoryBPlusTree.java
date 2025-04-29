@@ -266,10 +266,6 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 				}
 			}
 		}
-		else
-		{
-			return; //not underutilized
-		}
 	}
 
 	/**
@@ -390,7 +386,7 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 		n.insert(kp, n.keyCount,movedPtr, n.keyCount + 1);
 		// remove np’s first key and its first pointer
 		np.delete(0, 0);
-		// 4) update the parents separating key
+		// update the parents separating key
 		parent.changeKey(n, np, movedUp);
 	}
 

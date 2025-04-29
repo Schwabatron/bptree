@@ -314,19 +314,17 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	 */
 	@SuppressWarnings("unchecked")
 	protected void merge(NonLeafNode<K> left, K sepKey, NonLeafNode<K> right) {
-		// 1) remember old key count
+		// store a copy of the current key count
 		int oldKC = left.keyCount;
-		// 2) put the separator key at the end of 'left'
+		// put the seperator key in the last index of the left node
 		left.keys[oldKC] = sepKey;
-		// 3) attach right's first child pointer just after that key
+		// put the pointer to the right node in the next index of the left node
 		left.pointers[oldKC + 1] = right.pointer(0);
-		left.keyCount++;
+		left.keyCount++; //increment key count
 
-		// 4) now append every (key, pointer) from 'right'
+		// now append every key, pointer from the right node to the left node
 		for (int i = 0; i < right.keyCount; i++) {
-			// key goes into left.keys at [left.keyCount]
 			left.keys[left.keyCount] = right.key(i);
-			// pointer goes into left.pointers at [left.keyCount + 1]
 			left.pointers[left.keyCount + 1] = right.pointer(i + 1);
 			left.keyCount++;
 		}
@@ -343,7 +341,7 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 	protected void merge(LeafNode<K, P> np, LeafNode<K, P> n) {
 		// append all key/pointer pairs
 		np.append(n, 0, n.keyCount - 1);
-		// assign last pointer (always in the last slot)
+		// assign last pointer
 		np.pointers[np.pointers.length - 1] = n.pointers[n.pointers.length - 1];
 	}
 

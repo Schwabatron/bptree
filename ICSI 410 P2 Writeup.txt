@@ -1,0 +1,13 @@
+﻿All core elements that were laid out in the project file are complete, 
+
+
+I added the method getChildrenCount() in node.java which was already a method but i didnt realize at the time
+
+
+In nonleafnode.java I added methods indexOF() to better help get the index of the parent node and pointercounter()  to get the number of pointers a node has. Both to make the reassignment of pointers easier 
+
+
+I spend approx 7-15 hours on this project in total
+
+
+In terms of suggestions i think that there are better ways to teach these data structures than simply giving a pseudocode algorithm, as well i didn't think the names of variables or what methods did was very intuitive for the student although i do understand with this level of complexity its challenging to make things easy to understand. Overall the assignment is very well written but i feel that a little more overview of WHAT we are looking at is needed

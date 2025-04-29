@@ -204,14 +204,14 @@ public class NonLeafNode<K extends Comparable<K>> extends Node<K> {
 
 	public int indexOf(Node<K> child) {
 		for (int i = 0; i <= keyCount; i++) {
-			if (pointers[i].equals(child)) {
+			if (pointers[i].equals(child)) { //getting the index of the parent node that contains the child node
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	public int pointerCount() {
+	public int pointerCount() { //returning the pointer count
 		return keyCount + 1;
 	}
 

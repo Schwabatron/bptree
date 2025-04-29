@@ -198,14 +198,6 @@ public class InMemoryBPlusTree<K extends Comparable<K>, P> extends BPlusTree<K, 
 		// node2parent associates each node on the search path with the parent node of that node
 		if (l != null)
 			delete(l, k, node2parent);
-
-
-		if (root instanceof LeafNode) {
-			@SuppressWarnings("unchecked")
-			LeafNode<K, P> leaf = (LeafNode<K, P>) root;
-			// always clear the last slot (the successor link)
-			leaf.pointers[leaf.pointers.length - 1] = null;
-		}
 	}
 
 	/**
